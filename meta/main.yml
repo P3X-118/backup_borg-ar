@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: mash
+  author: Oniell
   description: BorgBackup role
   platforms:
     - name: Debian

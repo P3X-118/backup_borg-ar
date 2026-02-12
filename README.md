@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # BorgBackup Ansible role
 
-[![REUSE status](https://api.reuse.software/badge/github.com/mother-of-all-self-hosting/ansible-role-backup_borg)](https://api.reuse.software/info/github.com/mother-of-all-self-hosting/ansible-role-backup_borg)
+[![REUSE status](https://api.reuse.software/badge/github.com/mother-of-all-self-hosting/ansible-role-backup)](https://api.reuse.software/info/github.com/mother-of-all-self-hosting/ansible-role-backup)
 
 This is an [Ansible](https://www.ansible.com/) role which installs and configures [BorgBackup](https://www.borgbackup.org/) (short: Borg) with [borgmatic](https://torsion.org/borgmatic/) in a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
@@ -37,7 +37,7 @@ Example playbook:
     # This role is not required. We just use it in our example.
     - role: galaxy/postgres
 
-    - role: galaxy/ansible.role.backup_borg
+    - role: galaxy/ansible.role.backup
 
     - role: another_role
 ```
@@ -49,38 +49,38 @@ Example playbook configuration (`group_vars/servers` or other):
 # This is just an example, however.
 # You can use this BorgBackup role without it Postgres integration or with another Postgres instance.
 
-backup_borg_enabled: false
+backup_enabled: false
 
-backup_borg_identifier: my-borgbackup
+backup_id: my-borgbackup
 
-backup_borg_base_path: "{{ my_base_path }}/backup_borg"
+backup_base_path: "{{ my_base_path }}/backup"
 
-backup_borg_username: "{{ my_username }}"
-backup_borg_uid: "{{ my_uid }}"
-backup_borg_gid: "{{ my_gid }}"
+backup_username: "{{ my_username }}"
+backup_uid: "{{ my_uid }}"
+backup_gid: "{{ my_gid }}"
 
 # We assume Postgres is installed via the `com.devture.ansible.role.postgres` role.
 # Remove this and any `postgres_*` reference below, if that's not the case.
-backup_borg_postgresql_version_detection_postgres_role_name: galaxy/com.devture.ansible.role.postgres
+backup_psql_version_detection_postgres_role_name: galaxy/com.devture.ansible.role.postgres
 
 # If you will use this without `com.devture.ansible.role.postgres`, you'll need to set the major Postgres version manually instead.
-# backup_borg_postgres_version: 15
+# backup_postgres_version: 15
 
-backup_borg_container_network: "{{ postgres_container_network if postgres_enabled else backup_borg_identifier }}"
+backup_container_net: "{{ postgres_container_network if postgres_enabled else backup_id }}"
 
-backup_borg_container_image_self_build: "{{ architecture not in ['amd64', 'arm32', 'arm64'] }}"
+backup_container_image_self_build: "{{ architecture not in ['amd64', 'arm32', 'arm64'] }}"
 
-backup_borg_postgresql_enabled: "{{ postgres_enabled }}"
-backup_borg_postgresql_databases_hostname: "{{ postgres_connection_hostname if postgres_enabled else '' }}"
-backup_borg_postgresql_databases_username: "{{ postgres_connection_username if postgres_enabled else '' }}"
-backup_borg_postgresql_databases_password: "{{ postgres_connection_password if postgres_enabled else '' }}"
-backup_borg_postgresql_databases_port: "{{ postgres_connection_port if postgres_enabled else 5432 }}"
-backup_borg_postgresql_databases: "{{ postgres_managed_databases | map(attribute='name') if postgres_enabled else [] }}"
+backup_psql_enabled: "{{ postgres_enabled }}"
+backup_psql_databases_hostname: "{{ postgres_connection_hostname if postgres_enabled else '' }}"
+backup_psql_databases_username: "{{ postgres_connection_username if postgres_enabled else '' }}"
+backup_psql_databases_password: "{{ postgres_connection_password if postgres_enabled else '' }}"
+backup_psql_databases_port: "{{ postgres_connection_port if postgres_enabled else 5432 }}"
+backup_psql_databases: "{{ postgres_managed_databases | map(attribute='name') if postgres_enabled else [] }}"
 
-backup_borg_location_source_directories:
+backup_location_source_directories:
   - "{{ my_data_path }}"
 
-backup_borg_systemd_required_services_list_auto: |
+backup_systemd_required_services_list_auto: |
   {{
     ([postgres_identifier ~ '.service'] if postgres_enabled else [])
   }}

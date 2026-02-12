@@ -8,11 +8,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 [Unit]
 Description=BorgBackup
-{% for service in backup_borg_systemd_required_services_list %}
+{% for service in backup_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
 {% endfor %}
-{% for service in backup_borg_systemd_wanted_services_list %}
+{% for service in backup_systemd_wanted_services_list %}
 Wants={{ service }}
 {% endfor %}
 DefaultDependencies=no
@@ -20,53 +20,53 @@ DefaultDependencies=no
 [Service]
 Type=oneshot
 Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ backup_borg_identifier }} 2>/dev/null || true'
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ backup_borg_identifier }} 2>/dev/null || true'
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_docker }} run --rm --name {{ backup_borg_identifier }} \
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ backup_id }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ backup_id }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_docker }} run --rm --name {{ backup_id }} \
       --log-driver=none \
       --cap-drop=ALL \
       --read-only \
-      --user={{ backup_borg_uid }}:{{ backup_borg_gid }} \
-      --network={{ backup_borg_container_network }} \
-      --mount type=bind,src={{ backup_borg_config_path }}/passwd,dst=/etc/passwd,ro \
-      --mount type=bind,src={{ backup_borg_config_path }},dst=/etc/borgmatic.d,ro \
-      {% for source in backup_borg_location_source_directories %}
+      --user={{ backup_uid }}:{{ backup_gid }} \
+      --network={{ backup_container_net }} \
+      --mount type=bind,src={{ backup_conf_path }}/passwd,dst=/etc/passwd,ro \
+      --mount type=bind,src={{ backup_conf_path }},dst=/etc/borgmatic.d,ro \
+      {% for source in backup_location_source_directories %}
       --mount type=bind,src={{ source }},dst={{ source }},ro \
       {% endfor %}
-      --tmpfs=/tmp:rw,noexec,nosuid,size={{ backup_borg_container_tmpfs_tmp_size }} \
-      {% for arg in backup_borg_container_extra_arguments %}
+      --tmpfs=/tmp:rw,noexec,nosuid,size={{ backup_container_tmpfs_tmp_size }} \
+      {% for arg in backup_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
-      {{ backup_borg_docker_image }} \
-      sh -c "borgmatic rcreate --encryption {{ backup_borg_encryption }}"
+      {{ backup_docker_image }} \
+      sh -c "borgmatic rcreate --encryption {{ backup_encryption }}"
 
 # The `CAP_DAC_OVERRIDE` capability is required, so that `root` in the container
-# can read the `/etc/borgmatic.d/config.yaml` (`{{ backup_borg_config_path }}/config.yaml`) file,
-# owned by `backup_borg_username:backup_borg_username` on the filesystem.
+# can read the `/etc/borgmatic.d/config.yaml` (`{{ backup_conf_path }}/config.yaml`) file,
+# owned by `backup_username:backup_username` on the filesystem.
 #
 # `/root` is mountes as temporary filesystem, because we're using `--read-only` and because
 # borgmatic tries to write to at least a few paths under `/root` (`.config`, `.ssh`, `.borgmatic`).
-ExecStart={{ devture_systemd_docker_base_host_command_docker }} run --rm --name {{ backup_borg_identifier }} \
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} run --rm --name {{ backup_id }} \
       --log-driver=none \
       --cap-drop=ALL \
       --cap-add=CAP_DAC_OVERRIDE \
       --read-only \
-      --network={{ backup_borg_container_network }} \
-      --mount type=bind,src={{ backup_borg_config_path }}/passwd,dst=/etc/passwd,ro \
-      --mount type=bind,src={{ backup_borg_config_path }},dst=/etc/borgmatic.d,ro \
-      {% for source in backup_borg_location_source_directories %}
+      --network={{ backup_container_net }} \
+      --mount type=bind,src={{ backup_conf_path }}/passwd,dst=/etc/passwd,ro \
+      --mount type=bind,src={{ backup_conf_path }},dst=/etc/borgmatic.d,ro \
+      {% for source in backup_location_source_directories %}
       --mount type=bind,src={{ source }},dst={{ source }},ro \
       {% endfor %}
-      --tmpfs=/root:rw,noexec,nosuid,size={{ backup_borg_container_tmpfs_root_size }} \
-      --tmpfs=/tmp:rw,noexec,nosuid,size={{ backup_borg_container_tmpfs_tmp_size }} \
-      {% for arg in backup_borg_container_extra_arguments %}
+      --tmpfs=/root:rw,noexec,nosuid,size={{ backup_container_tmpfs_root_size }} \
+      --tmpfs=/tmp:rw,noexec,nosuid,size={{ backup_container_tmpfs_tmp_size }} \
+      {% for arg in backup_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
-      {{ backup_borg_docker_image }}
+      {{ backup_docker_image }}
 
-ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ backup_borg_identifier }} 2>/dev/null || true'
-ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ backup_borg_identifier }} 2>/dev/null || true'
-SyslogIdentifier={{ backup_borg_identifier }}
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ backup_id }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ backup_id }} 2>/dev/null || true'
+SyslogIdentifier={{ backup_id }}
 
 [Install]
 WantedBy=multi-user.target

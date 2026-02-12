@@ -8,9 +8,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 Description=BorgBackup timer
 
 [Timer]
-Unit={{ backup_borg_identifier }}.service
-OnCalendar={{ backup_borg_schedule }}
-RandomizedDelaySec={{ backup_borg_schedule_randomized_delay_sec }}
+Unit={{ backup_id }}.service
+OnCalendar={{ backup_schedule }}
+RandomizedDelaySec={{ backup_schedule_randomized_delay_sec }}
 
 [Install]
 WantedBy=timers.target

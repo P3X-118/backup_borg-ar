@@ -26,7 +26,7 @@ For some playbooks, if you're using the integrated Postgres database server, bac
 
 Unless you disable the Postgres-backup support, make sure that the Postgres version of your homeserver's database is compatible with borgmatic. You can check the compatible versions on [`defaults/main.yml`](../defaults/main.yml).
 
-An alternative solution for backing up the Postgres database is [Postgres backup](https://github.com/mother-of-all-self-hosting/ansible-role-postgres-backup). If you decide to go with another solution, you can disable Postgres-backup support for BorgBackup using the `backup_borg_postgresql_enabled` variable.
+An alternative solution for backing up the Postgres database is [Postgres backup](https://github.com/mother-of-all-self-hosting/ansible-role-postgres-backup). If you decide to go with another solution, you can disable Postgres-backup support for BorgBackup using the `backup_psql_enabled` variable.
 
 ### Create a new SSH key
 
@@ -52,7 +52,7 @@ If you are using a hosted solution, follow their instructions. If you have your 
 cat PUBKEY | ssh USER@HOST 'dd of=.ssh/authorized_keys oflag=append conv=notrunc'
 ```
 
-The **private** key needs to be added to `backup_borg_ssh_key_private` on your `vars.yml` file as below.
+The **private** key needs to be added to `backup_ssh_key_private` on your `vars.yml` file as below.
 
 ## Adjusting the playbook configuration
 
@@ -63,25 +63,25 @@ To enable BorgBackup, add the following configuration to your `vars.yml` file (a
 ```yaml
 ########################################################################
 #                                                                      #
-# backup_borg                                                          #
+# backup                                                          #
 #                                                                      #
 ########################################################################
 
-backup_borg_enabled: true
+backup_enabled: true
 
 # Set the repository location, where:
 # - USER is a SSH user on a provider / server
 # - HOST is a SSH host of a provider / server
 # - REPO is a BorgBackup repository name
-backup_borg_location_repositories:
+backup_location_repositories:
  - ssh://USER@HOST/./REPO
 
 # Generate a strong password used for encrypting backups. You can create one with a command like `pwgen -s 64 1`.
-backup_borg_storage_encryption_passphrase: "PASSPHRASE"
+backup_storage_encryption_passphrase: "PASSPHRASE"
 
 # Add the content of the **private** part of the SSH key you have created.
 # Note: the whole key (all of its belonging lines) under the variable needs to be indented with 2 spaces.
-backup_borg_ssh_key_private: |
+backup_ssh_key_private: |
   -----BEGIN OPENSSH PRIVATE KEY-----
   TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZW
   xpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRv
@@ -92,7 +92,7 @@ backup_borg_ssh_key_private: |
 
 ########################################################################
 #                                                                      #
-# /backup_borg                                                         #
+# /backup                                                         #
 #                                                                      #
 ########################################################################
 ```
@@ -104,7 +104,7 @@ backup_borg_ssh_key_private: |
 You can specify the backup archive name format. To set it, add the following configuration to your `vars.yml` file (adapt to your needs):
 
 ```yaml
-backup_borg_storage_archive_name_format: backup-borg-{now:%Y-%m-%d-%H%M%S}
+backup_storage_archive_name_format: backup-borg-{now:%Y-%m-%d-%H%M%S}
 ```
 
 ### Configure retention policy (optional)
@@ -112,30 +112,30 @@ backup_borg_storage_archive_name_format: backup-borg-{now:%Y-%m-%d-%H%M%S}
 It is also possible to configure a retention strategy. To configure it, add the following configuration to your `vars.yml` file (adapt to your needs):
 
 ```yaml
-backup_borg_retention_keep_hourly: 0
-backup_borg_retention_keep_daily: 7
-backup_borg_retention_keep_weekly: 4
-backup_borg_retention_keep_monthly: 12
-backup_borg_retention_keep_yearly: 2
+backup_retention_keep_hourly: 0
+backup_retention_keep_daily: 7
+backup_retention_keep_weekly: 4
+backup_retention_keep_monthly: 12
+backup_retention_keep_yearly: 2
 ```
 
 ### Edit the schedule (optional)
 
-By default the task will run 4 a.m. every day based on the `backup_borg_schedule` variable. It is defined in the format of systemd timer calendar.
+By default the task will run 4 a.m. every day based on the `backup_schedule` variable. It is defined in the format of systemd timer calendar.
 
 To edit the schedule, add the following configuration to your `vars.yml` file (adapt to your needs):
 
 ```yaml
-backup_borg_schedule: "*-*-* 04:00:00"
+backup_schedule: "*-*-* 04:00:00"
 ```
 
-**Note**: the actual job may run with a delay. See `backup_borg_schedule_randomized_delay_sec` on [`defaults/main.yml`](https://github.com/mother-of-all-self-hosting/ansible-role-backup_borg/blob/f5d5b473d48c6504be10b3d946255ef5c186c2a6/defaults/main.yml#L50) for its default value.
+**Note**: the actual job may run with a delay. See `backup_schedule_randomized_delay_sec` on [`defaults/main.yml`](https://github.com/mother-of-all-self-hosting/ansible-role-backup/blob/f5d5b473d48c6504be10b3d946255ef5c186c2a6/defaults/main.yml#L50) for its default value.
 
 ### Set include and/or exclude directories (optional)
 
-`backup_borg_location_source_directories` defines the list of directories to back up.
+`backup_location_source_directories` defines the list of directories to back up.
 
-You might also want to exclude certain directories or file patterns from the backup using the `backup_borg_location_exclude_patterns` variable.
+You might also want to exclude certain directories or file patterns from the backup using the `backup_location_exclude_patterns` variable.
 
 ### Extending the configuration
 
@@ -143,7 +143,7 @@ There are some additional things you may wish to configure about the component.
 
 Take a look at:
 
-- [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `backup_borg_configuration_extension_yaml` variable
+- [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `backup_configuration_extension_yaml` variable
 
 ## Installing
 
@@ -157,7 +157,7 @@ If you use the MDAD / MASH playbook, the shortcut commands with the [`just` prog
 
 ## Usage
 
-After installation, `backup-borg` will run automatically every day at `04:00:00` (as defined in `backup_borg_schedule` by default).
+After installation, `backup-borg` will run automatically every day at `04:00:00` (as defined in `backup_schedule` by default).
 
 ### Manually start the task
 
