@@ -23,10 +23,10 @@ backup_docker_src_files_path: "{{ backup_base_path }}/docker-src"
 
 # Image and Postgres version are determined automatically, based on the detected Postgres server version (if enabled), otherwise latest is used
 # Also see the `backup_psql_version_detection_*` variables.
-backup_version: "{{ (backup_postgres_version ~ '-' ~ backup_borg_version ~ '-' ~ backup_borgmatic_version) if backup_postgres_version else 'latest' }}"
+backup_version: "{{ (backup_postgres_version ~ '-' ~ backup_version ~ '-' ~ backupmatic_version) if backup_postgres_version else 'latest' }}"
 backup_postgres_version: ""
-backup_borg_version: 1.4.3
-backup_borgmatic_version: 2.1.1
+backup_version: 1.4.3
+backupmatic_version: 2.1.1
 backup_alpine_version: edge
 backup_docker_image: "{{ backup_docker_image_registry_prefix }}legitservices/bb9:{{ backup_version }}"
 backup_docker_image_registry_prefix: "{{ 'localhost/' if backup_container_image_self_build else backup_docker_image_registry_prefix_upstream }}"
@@ -45,7 +45,7 @@ backup_container_extra_arguments_custom: []
 
 # List of systemd services that the BorgBackup systemd service depends on
 backup_systemd_required_services_list: "{{ backup_systemd_required_services_list_default + backup_systemd_required_services_list_auto + backup_systemd_required_services_list_custom }}"
-backup_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+backup_systemd_required_services_list_default: "{{ [sysd_docker_service] if sysd_docker_service else [] }}"
 backup_systemd_required_services_list_auto: []
 backup_systemd_required_services_list_custom: []
 

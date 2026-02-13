@@ -19,10 +19,10 @@ DefaultDependencies=no
 
 [Service]
 Type=oneshot
-Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ backup_id }} 2>/dev/null || true'
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ backup_id }} 2>/dev/null || true'
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_docker }} run --rm --name {{ backup_id }} \
+Environment="HOME={{ sysd_docker_unit_home_path }}"
+ExecStartPre=-{{ sysd_docker_host_sh }} -c '{{ sysd_docker_host_command }} stop -t {{ sysd_docker_stop_grace }} {{ backup_id }} 2>/dev/null || true'
+ExecStartPre=-{{ sysd_docker_host_sh }} -c '{{ sysd_docker_host_command }} rm {{ backup_id }} 2>/dev/null || true'
+ExecStartPre=-{{ sysd_docker_host_command }} run --rm --name {{ backup_id }} \
       --log-driver=none \
       --cap-drop=ALL \
       --read-only \
@@ -46,7 +46,7 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_docker }} run --rm --n
 #
 # `/root` is mountes as temporary filesystem, because we're using `--read-only` and because
 # borgmatic tries to write to at least a few paths under `/root` (`.config`, `.ssh`, `.borgmatic`).
-ExecStart={{ devture_systemd_docker_base_host_command_docker }} run --rm --name {{ backup_id }} \
+ExecStart={{ sysd_docker_host_command }} run --rm --name {{ backup_id }} \
       --log-driver=none \
       --cap-drop=ALL \
       --cap-add=CAP_DAC_OVERRIDE \
@@ -64,8 +64,8 @@ ExecStart={{ devture_systemd_docker_base_host_command_docker }} run --rm --name 
       {% endfor %}
       {{ backup_docker_image }}
 
-ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ backup_id }} 2>/dev/null || true'
-ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ backup_id }} 2>/dev/null || true'
+ExecStop=-{{ sysd_docker_host_sh }} -c '{{ sysd_docker_host_command }} stop -t {{ sysd_docker_stop_grace }} {{ backup_id }} 2>/dev/null || true'
+ExecStop=-{{ sysd_docker_host_sh }} -c '{{ sysd_docker_host_command }} rm {{ backup_id }} 2>/dev/null || true'
 SyslogIdentifier={{ backup_id }}
 
 [Install]
