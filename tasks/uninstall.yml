@@ -7,7 +7,7 @@
 ---
 - name: Check existence of BorgBackup systemd service
   ansible.builtin.stat:
-    path: "{{ sysd_docker_path }}/{{ backup_id }}.service"
+    path: "{{ sysd_docker_service_path }}/{{ backup_id }}.service"
   register: backup_service_stat
 
 - name: Uninstall BorgBackup systemd services and files
@@ -22,12 +22,12 @@
 
     - name: Ensure BorgBackup systemd service does not exist
       ansible.builtin.file:
-        path: "{{ sysd_docker_path }}/{{ backup_id }}.service"
+        path: "{{ sysd_docker_service_path }}/{{ backup_id }}.service"
         state: absent
 
     - name: Ensure BorgBackup timer does not exist
       ansible.builtin.file:
-        path: "{{ sysd_docker_path }}/{{ backup_id }}.timer"
+        path: "{{ sysd_docker_service_path }}/{{ backup_id }}.timer"
         state: absent
 
     - name: Ensure BorgBackup container network does not exist via community.docker.docker_network
